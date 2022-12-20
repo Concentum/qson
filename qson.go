@@ -93,8 +93,15 @@ func queryToMap(param string) (map[string]interface{}, error) {
 	// decode this as key=value into {key: value}
 	if len(pieces) == 1 {
 		var value interface{}
-		// First we try parsing it as an int, bool, null, etc
-		err = json.Unmarshal([]byte(rawValue), &value)
+		// First we try to parse it as an array
+		arr := strings.Split(rawValue, ",")
+		if len(arr) > 1 {
+			rawValue = `["` + strings.Join(arr, `","`) + `"]`
+			err = json.Unmarshal([]byte(rawValue), &value)
+		} else {
+			// Then we try parsing it as an int, bool, null, etc
+			err = json.Unmarshal([]byte(rawValue), &value)
+		}
 		if err != nil {
 			// If we got an error we try wrapping the value in
 			// quotes and processing it as a string
